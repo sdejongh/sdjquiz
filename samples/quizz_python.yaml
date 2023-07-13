@@ -1,0 +1,49 @@
+title: Sample Python Quizz
+author: Steve De Jongh
+description: A simple small quizz about Python to show the Yaml file structure.
+
+questions:
+  - title: World of Python
+    type: single
+    score: 1
+    keywords:
+      - python
+      - programming
+    text: To which category of programming language belongs Python ?
+    answers:
+      - text: Compiled programming languages
+        valid: False
+      - text: Interpreted programming languages
+        valid: True
+
+  - title: Python 3 builtins
+    type: multi
+    score: 2
+    keywords:
+      - python
+      - programming
+    text: Which of the following are Python 3 built-in functions ?
+    answers:
+      - text: any()
+        valid: True
+      - text: random()
+        valid: False
+      - text: sqrt()
+        valid: False
+      - text: range()
+        valid: True
+
+  - title: PEP 8
+    type: single
+    score: 1
+    keywords:
+      - python
+      - programming
+    text: How should indentation be made in Python following the PEP 8 (Style Guide for Python Code) ?
+    answers:
+      - text: 4 spaces
+        valid: True
+      - text: 2 spaces
+        valid: False
+      - text: 1 tabulation
+        valid: False
