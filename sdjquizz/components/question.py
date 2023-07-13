@@ -15,6 +15,17 @@ class Answer:
 
 
 def get_question(**kwargs):
+    """Returns the Question object based on its type.
+    returns a SingleChoiceQuestion if type="single"
+    returns a MultipleChoiceQuestion if type="multi"
+
+    Args:
+        Any
+
+    Returns:
+        SingleChoiceQuestion | MultipleChoiceQuestion
+
+    """
     question_type = QuestionType(kwargs.pop("type"))
 
     if question_type == QuestionType.SINGLE:
@@ -66,12 +77,14 @@ class Question(ABC):
 
 
 class SingleChoiceQuestion(Question):
+    """Single Choice Question class"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.type = QuestionType.SINGLE
 
 
 class MultipleChoiceQuestion(Question):
+    """Multiple Choice Question class"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.type = QuestionType.MULTI
