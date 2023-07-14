@@ -18,8 +18,8 @@ class Answer:
 class Question:
     """Represents a multiple choice question"""
     def __init__(self, title: str, text: str, keywords: list[str], score: int, answers: list[Answer],
-                 question_uuid: str or None = None) -> None:
-        self.uuid = question_uuid if question_uuid is not None else str(uuid.uuid4())
+                 unique_id: str or None = None) -> None:
+        self.__unique_id = unique_id if unique_id is not None else str(uuid.uuid4())
         self.__title = title
         self.__text = text
         self.__keywords = keywords
@@ -28,10 +28,14 @@ class Question:
 
     def __repr__(self):
         return f"Question(title={repr(self.title):.20}, text={repr(self.text):.20}, keywords={repr(self.keywords)}," \
-               f"score={self.score}, answers={repr(self.__answers)}, uuid={repr(self.uuid)})"
+               f"score={self.score}, answers={repr(self.__answers)}, unique_id={repr(self.__unique_id)})"
 
     def __str__(self):
         return self.text.lower()
+
+    @property
+    def unique_id(self):
+        return self.__unique_id
 
     @property
     def title(self) -> str:
@@ -61,6 +65,7 @@ class Question:
     def score(self, score) -> None:
         if score < 0:
             raise ValueError(f"Score value {score} is incorrect. Must be >= 0")
+        self.__score = score
 
     def add_answer(self, text: str, correct: bool) -> None:
         """Adds an answer to the answers list"""
@@ -148,23 +153,73 @@ class Question:
         """
         self.__keywords = sorted([keyword.lower() for keyword in set(keywords)])
 
+    @staticmethod
+    def from_dict(question_data: dict):
+        """Returns a new Question object from the provided dictionary.
+
+        Args:
+            question_data (dict): the question data.
+
+        Returns:
+            Question: a new Question object instance.
+
+        """
+        answers = [Answer(**answer) for answer in question_data["answers"]]
+        question_data['answers'] = answers
+        return Question(**question_data)
+
 
 class Quiz:
     """Represents a Quiz"""
-    def __init__(self, title: str, description: str, questions: list[Question] or None = None) -> None:
-        self.title = title
-        self.description = description
-        self.questions_bank = {question.uuid: question for question in questions}
-        self.max_score = sum(question.score for question in self.questions_bank)
+    def __init__(self, title: str, author: str, description: str, questions: list[Question] or None = None) -> None:
+        self.__title = title
+        self.author = author
+        self.__description = description
+        self.__questions_bank = {question.unique_id: question for question in questions} if questions is not None else {}
 
     @property
-    def questions_count(self):
-        """Returns the number of questions in the quiz"""
-        return len(self.questions_bank)
+    def title(self) -> str:
+        return self.__title
+
+    @title.setter
+    def title(self, title: str) -> None:
+        self.__title = title.lower()
+
+    @property
+    def description(self) -> str:
+        return self.__description
+
+    @description.setter
+    def description(self, description: str) -> None:
+        self.__description = description.lower()
+
+    @property
+    def questions_count(self) -> int:
+        if self.__questions_bank is None:
+            return 0
+        else:
+            return len(self.__questions_bank)
+
+    @property
+    def max_score(self) -> int:
+        return sum(question.score for question in self.__questions_bank) if self.questions_count > 0 else 0
 
     def __repr__(self):
-        return f"Quiz(title={repr(self.title)}, description={repr(self.description):.20}," \
-               f"questions={repr(self.questions_bank)}"
+        return f"Quiz(title={repr(self.__title)}, description={repr(self.__description):.20}," \
+               f"questions={repr(self.__questions_bank)}"
 
     def __str__(self):
-        return f"{self.title.lower()} ({self.description.lower()})"
+        return f"{self.__title} ({self.__description})"
+
+    @staticmethod
+    def from_dict(quiz_data):
+        """Returns a new Quiz from the provided dictionary
+        Args:
+            quiz_data (dict): the data of the quiz.
+
+        Returns:
+            Quiz:   A Quiz Object instance.
+        """
+        questions = [Question.from_dict(question_data) for question_data in quiz_data["questions"]]
+        quiz_data["questions"] = questions
+        return Quiz(**quiz_data)
