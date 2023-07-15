@@ -80,7 +80,7 @@ class Question:
             answer_index (int): Index of the answer in self.__answers
 
         Returns:
-
+            None
         """
         if answer_index not in range(len(self.__answers)):
             raise AnswerError(f"Cannot delete answer: index {answer_index} out of range")
@@ -96,7 +96,7 @@ class Question:
             correct (bool): the value of the answer (or None if nothing to change)
 
         Returns:
-
+            None
         """
         if answer_index not in range(len(self.__answers)):
             raise AnswerError(f"Cannot update answer: index {answer_index} out of range")
@@ -106,11 +106,22 @@ class Question:
             self.__answers[answer_index].correct = correct
 
     def purge_answers(self) -> None:
-        """Remove all answers from the answers list"""
+        """Remove all answers from the answers list
+
+        Returns:
+            None
+        """
         self.__answers.clear()
 
     def set_answers(self, answers: list[Answer]) -> None:
-        """Sets or replace all answers with the given list"""
+        """Sets or replace all answers with the given list
+
+        Args:
+            answers (list[Answer]):     list of answers
+
+        Returns:
+            None
+        """
         self.__answers = answers
 
     def add_keywords(self, keywords: list[str]) -> None:
@@ -121,7 +132,7 @@ class Question:
             keywords (list[str]): the list of keywords to add
 
         Returns:
-
+            None
         """
         keywords = set(keyword.lower() for keyword in keywords)
         self.__keywords = sorted(list(set(self.__keywords).union(keywords)))
@@ -133,7 +144,7 @@ class Question:
             keywords (list[str]): the list of keywords to remove
 
         Returns:
-
+            None
         """
         keywords = set(keyword.lower() for keyword in keywords)
         self.__keywords = sorted(list(set(self.__keywords) - set(keywords)))
@@ -150,7 +161,7 @@ class Question:
             keywords (list[str]): the list of keywords.
 
         Returns:
-
+            None
         """
         self.__keywords = sorted([keyword.lower() for keyword in set(keywords)])
 
@@ -163,7 +174,6 @@ class Question:
 
         Returns:
             Question: a new Question object instance.
-
         """
         answers = [Answer(**answer) for answer in question_data["answers"]]
         question_data['answers'] = answers
@@ -203,7 +213,7 @@ class Quiz:
 
     @property
     def max_score(self) -> int:
-        return sum(question.score for question in self.__questions_bank) if self.questions_count > 0 else 0
+        return sum(question.score for question in self.__questions_bank.values()) if self.questions_count > 0 else 0
 
     def __repr__(self):
         return f"Quiz(title={repr(self.__title)}, description={repr(self.__description):.20}," \
@@ -239,7 +249,7 @@ class Quiz:
             unique_id: (str or None):   the question unique id
 
         Returns:
-
+            None
         """
         try:
             question = Question(title, text, keywords, score, answers, unique_id)
@@ -257,7 +267,7 @@ class Quiz:
             unique_id (str):           the question unique_id
 
         Returns:
-
+            None
         """
         if unique_id not in self.__questions_bank:
             raise QuizzError(f"Question {unique_id} not in questions bank.")
@@ -272,7 +282,6 @@ class Quiz:
 
         Returns:
             list[Question]              The list of questions
-
         """
         if count < 1 or count > self.questions_count:
             questions = [question for question in self.__questions_bank]
