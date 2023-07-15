@@ -263,12 +263,20 @@ class Quiz:
             raise QuizzError(f"Question {unique_id} not in questions bank.")
         del(self.__questions_bank[unique_id])
 
-    def get_questions(self, count: int = -1, randomized: bool = True):
-        questions = []
+    def get_questions(self, count: int = -1, randomized: bool = True) -> list[Question]:
+        """Returns a list of questions.
 
+        Args:
+            count (int):                The number of questions to return (all questions if 1 > count > max)
+            randomized:                 Randomize question order if True
+
+        Returns:
+            list[Question]              The list of questions
+
+        """
         if count < 1 or count > self.questions_count:
             questions = [question for question in self.__questions_bank]
         else:
-            question = random.sample(self.__questions_bank, count)
+            questions = random.sample(self.__questions_bank, count)
 
         return random.shuffle(questions) if randomized else questions
