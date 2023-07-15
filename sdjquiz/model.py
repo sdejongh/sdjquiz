@@ -1,5 +1,6 @@
+import random
 import uuid
-from sdjquiz.exceptions import AnswerError
+from sdjquiz.exceptions import AnswerError, QuestionError, QuizzError
 
 
 class Answer:
@@ -223,3 +224,51 @@ class Quiz:
         questions = [Question.from_dict(question_data) for question_data in quiz_data["questions"]]
         quiz_data["questions"] = questions
         return Quiz(**quiz_data)
+
+    def add_question(self, title: str, text: str, keywords: list[str], score: int, answers: list[Answer],
+                     unique_id: str or None = None) -> None:
+        """Adds a new question to the question bank.
+        Checks unicity based on question unique_id.
+
+        Args:
+            title (str):                title of the question
+            text (str):                 body of the question
+            keywords (list[str]):       a list of keywords
+            score (int):                value of the question
+            answers: list[Answer]:      the list of answers
+            unique_id: (str or None):   the question unique id
+
+        Returns:
+
+        """
+        try:
+            question = Question(title, text, keywords, score, answers, unique_id)
+        except TypeError:
+            raise QuestionError(f"Could not create question: Wrong arguments")
+        except ValueError:
+            raise QuestionError(f"Could not create question: Wrong arguments")
+        else:
+            self.__questions_bank[question.unique_id] = question
+
+    def delete_question(self, unique_id: str) -> None:
+        """Deletes a question from questions bank based on its unique_id.
+
+        Args:
+            unique_id (str):           the question unique_id
+
+        Returns:
+
+        """
+        if unique_id not in self.__questions_bank:
+            raise QuizzError(f"Question {unique_id} not in questions bank.")
+        del(self.__questions_bank[unique_id])
+
+    def get_questions(self, count: int = -1, randomized: bool = True):
+        questions = []
+
+        if count < 1 or count > self.questions_count:
+            questions = [question for question in self.__questions_bank]
+        else:
+            question = random.sample(self.__questions_bank, count)
+
+        return random.shuffle(questions) if randomized else questions
