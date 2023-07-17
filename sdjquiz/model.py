@@ -254,7 +254,14 @@ class Quiz:
         """
         questions = [Question.from_dict(question_data) for question_data in quiz_data["questions"]]
         quiz_data["questions"] = questions
-        return Quiz(**quiz_data)
+        try:
+            quiz = Quiz(**quiz_data)
+        except TypeError as error:
+            raise QuizzError(error)
+        except ValueError as error:
+            raise QuizzError(error)
+        else:
+            return quiz
 
     def add_question(self, title: str, text: str, keywords: list[str], score: int, answers: list[Answer],
                      unique_id: str or None = None) -> None:

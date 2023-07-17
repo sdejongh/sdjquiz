@@ -46,6 +46,8 @@ class QuizController(ABC):
             raise QuizzError(f"Could not load data from {filepath}: permissions error")
         except yaml.YAMLError:
             raise QuizzError(f"Could not load data from {filepath}: YAML error")
+        except QuizzError as error:
+            raise error
         else:
             self.quiz = quiz
 
@@ -77,9 +79,64 @@ class QuizController(ABC):
         """
         pass
 
+    def _play_quiz(self) -> None:
+        """
+        The quiz routine
+
+        Returns:
+            None
+        """
+        # Welcomes the user
+        self.vue.show_greetings(self.quiz.title, self.quiz.description, self.quiz.questions_count,
+                                self.quiz.max_score)
+
+        # Ask the user how many questions he wants
+        user_input = None
+        while not QuizController.is_valid_input_count(user_input):
+            user_input = self.vue.ask_questions_count(self.quiz.questions_count)
+
+        # Defaults to the maximum if no answer given
+        questions_count = int(user_input) if user_input else self.quiz.questions_count
+
+        # Get the list of questions
+        questions = self.quiz.get_questions(questions_count)
+
+        # Initialize the user score
+        score = 0
+        max_score = sum(question.score for question in questions)
+
+        # Ask selected questions
+        for idx, question in enumerate(questions):
+            self.vue.clear()
+
+            # Randomize answers order
+            answers = question.answers
+            random.shuffle(answers)
+
+            # Create a set of correct answers index
+            correct = set([idx for idx, answer in enumerate(answers) if answer.correct])
+
+            # Display the question
+            self.vue.show_question(idx, question.title, question.text, [answer.text for answer in answers],
+                                   len(correct))
+
+            # Get answer from user (should retard a set of answer indexes)
+            user_answer = self.get_user_answer(len(answers), len(correct))
+
+            # If sets matches add question score to the total
+            if user_answer == correct:
+                score += question.score
+
+            # Mark a pause
+            self.vue.pause()
+
+        # Displays the results
+        self.vue.show_result(self.quiz.title, score, max_score)
+
     def start(self) -> None:
         """
-        Starts the Quiz main routine
+        Quiz entry point
+        Loads quiz data from file or exit on error, and launches the quiz.
 
         Returns:
             None
@@ -98,54 +155,9 @@ class QuizController(ABC):
             self.load_quiz(self.quiz_file)
         except QuizzError as err:
             self.vue.show_error(err)
-            exit()
+            exit(1)
         else:
-            # Welcomes the user
-            self.vue.show_greetings(self.quiz.title, self.quiz.description, self.quiz.questions_count,
-                                    self.quiz.max_score)
-
-            # Ask the user how many questions he wants
-            user_input = None
-            while not QuizController.is_valid_input_count(user_input):
-                user_input = self.vue.ask_questions_count(self.quiz.questions_count)
-
-            # Defaults to the maximum if no answer given
-            questions_count = int(user_input) if user_input else self.quiz.questions_count
-
-            # Get the list of questions
-            questions = self.quiz.get_questions(questions_count)
-
-            # Initialize the user score
-            score = 0
-            max_score = sum(question.score for question in questions)
-
-            # Ask selected questions
-            for idx, question in enumerate(questions):
-                self.vue.clear()
-
-                # Randomize answers order
-                answers = question.answers
-                random.shuffle(answers)
-
-                # Create a set of correct answers index
-                correct = set([idx for idx, answer in enumerate(answers) if answer.correct])
-
-                # Display the question
-                self.vue.show_question(idx, question.title, question.text, [answer.text for answer in answers],
-                                       len(correct))
-
-                # Get answer from user (should retard a set of answer indexes)
-                user_answer = self.get_user_answer(len(answers), len(correct))
-
-                # If sets matches add question score to the total
-                if user_answer == correct:
-                    score += question.score
-
-                # Mark a pause
-                self.vue.pause()
-
-            # Displays the results
-            self.vue.show_result(self.quiz.title, score, max_score)
+            self._play_quiz()
 
 
 class ConsoleQuizController(QuizController):
