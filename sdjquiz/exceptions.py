@@ -5,6 +5,7 @@ class AnswerError(Exception):
 class QuestionError(Exception):
     pass
 
+
 class QuizzError(Exception):
     pass
 

@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "sdjquizz"
-version = "0.1.0"
+name = "sdjquiz"
+version = "0.2.0"
 description = ""
 authors = ["Steve De Jongh <sdejongh@he2b.be>"]
 readme = "README.md"
@@ -11,7 +11,7 @@ pyyaml = "^6.0"
 rich = "^13.4.2"
 
 [tool.poetry.scripts]
-sdjquizz = "sdjquizz.main:main"
+sdjquiz = "sdjquiz.main:main"
 
 [build-system]
 requires = ["poetry-core"]

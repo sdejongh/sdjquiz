@@ -1,9 +1,8 @@
-from sdjquiz.controller import QuizController
-from sdjquiz.vue import QuizTUI
+from sdjquiz.controller import ConsoleQuizController
 
 
 def main():
-    controller = QuizController(QuizTUI())
+    controller = ConsoleQuizController()
     controller.start()
 
 

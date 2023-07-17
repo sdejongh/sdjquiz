@@ -68,12 +68,25 @@ class Question:
             raise ValueError(f"Score value {score} is incorrect. Must be >= 0")
         self.__score = score
 
+    @property
+    def answers(self) -> list[Answer]:
+        return self.__answers
+
     def add_answer(self, text: str, correct: bool) -> None:
-        """Adds an answer to the answers list"""
+        """
+        Adds an answer to the answers list
+        Args:
+            text (str):     the answer text
+            correct (bool): True if the answer is correct
+
+        Returns:
+            None
+        """
         self.__answers.append(Answer(text, correct))
 
     def delete_answer_by_index(self, answer_index) -> None:
-        """Deletes an answer from the answers list based on its index.
+        """
+        Deletes an answer from the answers list based on its index.
         Raises AnswerDoesNotExistError if the index is out of range
 
         Args:
@@ -87,7 +100,8 @@ class Question:
         del self.__answers[answer_index]
 
     def update_answer(self, answer_index: int, text: str or None = None, correct: bool or None = None) -> None:
-        """Updates an answer in the list of answers based on its index.
+        """
+        Updates an answer in the list of answers based on its index.
         Raises AnswerDoesNotExistError if the index is out of range
 
         Args:
@@ -106,7 +120,8 @@ class Question:
             self.__answers[answer_index].correct = correct
 
     def purge_answers(self) -> None:
-        """Remove all answers from the answers list
+        """
+        Remove all answers from the answers list
 
         Returns:
             None
@@ -114,7 +129,8 @@ class Question:
         self.__answers.clear()
 
     def set_answers(self, answers: list[Answer]) -> None:
-        """Sets or replace all answers with the given list
+        """
+        Sets or replace all answers with the given list
 
         Args:
             answers (list[Answer]):     list of answers
@@ -125,7 +141,8 @@ class Question:
         self.__answers = answers
 
     def add_keywords(self, keywords: list[str]) -> None:
-        """Adds a list of keywords tho the keywords list.
+        """
+        Adds a list of keywords tho the keywords list.
         Will only add keywords not already in the list.
 
         Args:
@@ -138,7 +155,8 @@ class Question:
         self.__keywords = sorted(list(set(self.__keywords).union(keywords)))
 
     def delete_keywords(self, keywords: list[str]) -> None:
-        """Deletes a list keywords tho the keywords list.
+        """
+        Deletes a list keywords tho the keywords list.
 
         Args:
             keywords (list[str]): the list of keywords to remove
@@ -154,7 +172,8 @@ class Question:
         self.__keywords.clear()
 
     def set_keywords(self, keywords: list[str]) -> None:
-        """Sets the list of keywords. All keywords will be converted to lowercase.
+        """
+        Sets the list of keywords. All keywords will be converted to lowercase.
         The list my contain duplicates, only one occurrence will be added to the list.
 
         Args:
@@ -167,7 +186,8 @@ class Question:
 
     @staticmethod
     def from_dict(question_data: dict):
-        """Returns a new Question object from the provided dictionary.
+        """
+        Returns a new Question object from the provided dictionary.
 
         Args:
             question_data (dict): the question data.
@@ -224,7 +244,8 @@ class Quiz:
 
     @staticmethod
     def from_dict(quiz_data):
-        """Returns a new Quiz from the provided dictionary
+        """
+        Returns a new Quiz from the provided dictionary
         Args:
             quiz_data (dict): the data of the quiz.
 
@@ -237,7 +258,8 @@ class Quiz:
 
     def add_question(self, title: str, text: str, keywords: list[str], score: int, answers: list[Answer],
                      unique_id: str or None = None) -> None:
-        """Adds a new question to the question bank.
+        """
+        Adds a new question to the question bank.
         Checks unicity based on question unique_id.
 
         Args:
@@ -261,7 +283,8 @@ class Quiz:
             self.__questions_bank[question.unique_id] = question
 
     def delete_question(self, unique_id: str) -> None:
-        """Deletes a question from questions bank based on its unique_id.
+        """
+        Deletes a question from questions bank based on its unique_id.
 
         Args:
             unique_id (str):           the question unique_id
@@ -273,19 +296,17 @@ class Quiz:
             raise QuizzError(f"Question {unique_id} not in questions bank.")
         del(self.__questions_bank[unique_id])
 
-    def get_questions(self, count: int = -1, randomized: bool = True) -> list[Question]:
-        """Returns a list of questions.
+    def get_questions(self, count: int) -> list[Question]:
+        """
+        Returns a list of questions.
 
         Args:
             count (int):                The number of questions to return (all questions if 1 > count > max)
-            randomized:                 Randomize question order if True
 
         Returns:
             list[Question]              The list of questions
         """
         if count < 1 or count > self.questions_count:
-            questions = [question for question in self.__questions_bank]
-        else:
-            questions = random.sample(self.__questions_bank, count)
+            count = self.questions_count
 
-        return random.shuffle(questions) if randomized else questions
+        return random.sample(list(self.__questions_bank.values()), count)
