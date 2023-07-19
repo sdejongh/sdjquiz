@@ -1,4 +1,4 @@
-from sdjquiz.controller import ConsoleQuizController
+from sdjquiz.controller.basic_tui_controller import ConsoleQuizController
 import signal
 import sys
 
