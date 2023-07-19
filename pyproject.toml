@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sdjquiz"
-version = "0.2.1"
+version = "0.2.2"
 description = ""
 authors = ["Steve De Jongh <sdejongh@he2b.be>"]
 readme = "README.md"

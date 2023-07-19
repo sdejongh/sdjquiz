@@ -1,7 +1,6 @@
 title: Sample Python Quizz
 author: Steve De Jongh
 description: A simple small quizz about Python to show the Yaml file structure.
-lol: hahaha
 
 questions:
   - title: World of Python

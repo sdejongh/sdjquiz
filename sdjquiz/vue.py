@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from rich.console import Console
+from rich.prompt import Prompt, IntPrompt, Confirm
 
 
 class QuizVue(ABC):
@@ -62,7 +63,7 @@ class QuizVue(ABC):
         pass
 
     @abstractmethod
-    def ask_questions_count(self, default_count: int) -> str:
+    def ask_questions_count(self, default_count: int) -> int:
         """
         Asks the user how many questions he wants to answer.
 
@@ -70,7 +71,7 @@ class QuizVue(ABC):
             default_count:  the default number of questions
 
         Returns:
-            str:    the number of questions as a string
+            int:    the number of questions
         """
         pass
 
@@ -133,7 +134,8 @@ class QuizTUI(QuizVue):
         Returns:
             str:    the path to the file (can be absolute or relative)
         """
-        return self.console.input("Path to the quiz file: ")
+        self.console.print("Welcome to SDJQUIZ...")
+        return Prompt.ask(console=self.console, prompt="Enter the path to the quiz file")
 
     def clear(self):
         """
@@ -172,9 +174,9 @@ class QuizTUI(QuizVue):
         self.console.print(f"Description: {quiz_description.title()}")
         self.console.print(f"Number of questions: {quiz_questions_count}")
         self.console.print(f"Maximum score: {quiz_max_score}")
-        self.console.print()
+        self.console.line()
 
-    def ask_questions_count(self, default_count: int) -> str:
+    def ask_questions_count(self, default_count: int) -> int:
         """
         Asks the user how many questions he wants to answer.
 
@@ -182,9 +184,9 @@ class QuizTUI(QuizVue):
             default_count:  the default number of questions
 
         Returns:
-            str:    the number of questions as a string
+            int:    the number of questions as a string
         """
-        return self.console.input(f"How many questions (default: {default_count}): ")
+        return IntPrompt.ask(console=self.console, prompt="How many questions do you want ?")
 
     def pause(self) -> None:
         """
@@ -193,8 +195,8 @@ class QuizTUI(QuizVue):
         Returns:
             None
         """
-        self.console.print()
-        self.console.input("Press any key to continue...")
+        self.console.line()
+        Prompt.ask(prompt="Press ENTER to continue...", console=self.console)
 
     def show_question(self, question_index: int, title: str, text: str, answers: list[str], correct_count: int) -> None:
         """
@@ -213,13 +215,13 @@ class QuizTUI(QuizVue):
         self.clear()
         self.console.print(f"----[ Q{question_index+1:3d} : {title} ]----")
         self.console.print(text)
-        self.console.print()
+        self.console.line()
         self.console.print(f"Answers (select {correct_count}):")
 
         for idx, answer in enumerate(answers):
             self.console.print(f"{idx+1}) {answer}")
 
-        self.console.print()
+        self.console.line()
 
     def ask_answer(self) -> str:
         """
@@ -233,7 +235,7 @@ class QuizTUI(QuizVue):
         Returns:
             str: the user answer
         """
-        return self.console.input("Your answer (ie: 1 or 1,3,7):")
+        return Prompt.ask(console=self.console, prompt="Your answer (ie: 1 or 1,3,7)")
 
     def show_result(self, quiz_title: str, score: int, max_score: int) -> None:
         """
@@ -249,6 +251,6 @@ class QuizTUI(QuizVue):
         """
         self.clear()
         self.console.print(f"Your result for quiz : {quiz_title}")
-        self.console.print()
+        self.console.line()
         self.console.print(f"You achieved a score of {score}/{max_score} ({100*score/max_score:.2f}%)")
         self.pause()

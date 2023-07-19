@@ -48,22 +48,10 @@ class QuizController(ABC):
             raise QuizzError(f"Could not load data from {filepath}: YAML error")
         except QuizzError as error:
             raise error
+        except OSError:
+            raise QuizzError("Incorrect file path.")
         else:
             self.quiz = quiz
-
-    @staticmethod
-    def is_valid_input_count(text_input: str or None) -> bool:
-        """
-        Checks whether the input text is either a digit expression or an empty string.
-        Args:
-            text_input (str):   the text string to check
-
-        Returns:
-            bool:               True if the string is a digit expression or an empty string, else False
-        """
-        if text_input is None:
-            return False
-        return text_input.isdigit() or text_input == ""
 
     @abstractmethod
     def get_user_answer(self, answers_count: int, correct_count: int) -> set[int]:
@@ -91,12 +79,7 @@ class QuizController(ABC):
                                 self.quiz.max_score)
 
         # Ask the user how many questions he wants
-        user_input = None
-        while not QuizController.is_valid_input_count(user_input):
-            user_input = self.vue.ask_questions_count(self.quiz.questions_count)
-
-        # Defaults to the maximum if no answer given
-        questions_count = int(user_input) if user_input else self.quiz.questions_count
+        questions_count = self.vue.ask_questions_count(default_count=self.quiz.questions_count)
 
         # Get the list of questions
         questions = self.quiz.get_questions(questions_count)
@@ -141,6 +124,9 @@ class QuizController(ABC):
         Returns:
             None
         """
+        # Clear the terminal
+        self.vue.clear()
+
         # Ask user for a quiz file
         filepath = self.vue.ask_file_path()
 
